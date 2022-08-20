@@ -232,13 +232,13 @@ fn run(op: &Op, mem: &mut [u8], prog: &[Op], pc: &mut usize, mem_ptr: &mut usize
         },
         Print => { print!("{}", mem[*mem_ptr] as char)},
         Read => {
-            loop {
-                let mut line = String::new();
-                std::io::stdin().read_line(&mut line).unwrap();
-                if line.trim().len() > 0 {
-                    mem[*mem_ptr] = line.trim().chars().nth(0).unwrap() as u8;
-                    break;
-                }
+            let next_byte = std::io::stdin()
+                .bytes() 
+                .next()
+                .and_then(|result| result.ok())
+                .map(|byte| byte as u8).unwrap();
+            if next_byte != '\n' as u8{
+                mem[*mem_ptr] = next_byte;
             }
         }
     }
