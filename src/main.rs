@@ -1,3 +1,6 @@
+use std::io::Read;
+use self::Op::*;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Op {
     Inc(u8),
@@ -9,10 +12,6 @@ enum Op {
     Print,
     Read
 }
-
-use std::io::Read;
-
-use self::Op::*;
 
 fn lex(prog: &str) -> Vec<Op>{
     let mut ops: Vec<Op> = vec![];
