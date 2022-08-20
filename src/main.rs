@@ -37,18 +37,18 @@ fn optimize(ops: Vec<Op>) -> Vec<Op> {
     let mut i: usize = 0;
     let mut last_op: Option<&Op> = None;
     let mut add_diff: i16 = 0;
-    let mut jmp_diff: isize = 0;
+    let mut move_diff: isize = 0;
     while i < ops.len() {
         let this_op: &Op = &ops[i];
         let mut this_arithmetic: bool = false;
-        let mut this_jump: bool = false;
+        let mut this_move: bool = false;
         let mut last_arithmetic: bool = false;
-        let mut last_jump: bool = false;
+        let mut last_move: bool = false;
         if *this_op == Inc(1) || *this_op == Dec(1) {
             this_arithmetic = true;
         }
         else if *this_op == Next(1) || *this_op == Prev(1) {
-            this_jump = true;
+            this_move = true;
         }
         match last_op {
             Some(last) => {
@@ -56,7 +56,7 @@ fn optimize(ops: Vec<Op>) -> Vec<Op> {
                     last_arithmetic = true;
                 }
                 else if *last == Next(1) || *last == Prev(1) {
-                    last_jump = true;
+                    last_move = true;
                 }
             },
             _ => {}
@@ -71,22 +71,22 @@ fn optimize(ops: Vec<Op>) -> Vec<Op> {
                 add_diff -= 1;
             }
 
-            if last_jump {
-                if jmp_diff > 0 {
-                    new_ops.push(Next(jmp_diff as usize));
+            if last_move {
+                if move_diff > 0 {
+                    new_ops.push(Next(move_diff as usize));
                 }
-                else if jmp_diff < 0 {
-                    new_ops.push(Prev(-jmp_diff as usize));
+                else if move_diff < 0 {
+                    new_ops.push(Prev(-move_diff as usize));
                 }
-                jmp_diff = 0;
+                move_diff = 0;
             }
         }
-        else if this_jump { // Continue with jump stuff
+        else if this_move { // Continue with jump stuff
             if *this_op == Next(1) {
-                jmp_diff += 1;
+                move_diff += 1;
             }
             else if *this_op == Prev(1) {
-                jmp_diff -= 1;
+                move_diff -= 1;
             }
 
             if last_arithmetic {
@@ -112,14 +112,14 @@ fn optimize(ops: Vec<Op>) -> Vec<Op> {
                 add_diff = 0;
             }
 
-            if last_jump {
-                if jmp_diff > 0 {
-                    new_ops.push(Next(jmp_diff as usize));
+            if last_move {
+                if move_diff > 0 {
+                    new_ops.push(Next(move_diff as usize));
                 }
-                else if jmp_diff < 0 {
-                    new_ops.push(Prev(-jmp_diff as usize));
+                else if move_diff < 0 {
+                    new_ops.push(Prev(-move_diff as usize));
                 }
-                jmp_diff = 0;
+                move_diff = 0;
             }
 
             // Just add the next instruction as is
@@ -135,11 +135,11 @@ fn optimize(ops: Vec<Op>) -> Vec<Op> {
     else if add_diff < 0 {
         new_ops.push(Dec(-add_diff as u8));
     }
-    if jmp_diff > 0 {
-        new_ops.push(Next(jmp_diff as usize));
+    if move_diff > 0 {
+        new_ops.push(Next(move_diff as usize));
     }
-    else if jmp_diff < 0 {
-        new_ops.push(Prev(-jmp_diff as usize));
+    else if move_diff < 0 {
+        new_ops.push(Prev(-move_diff as usize));
     }
 
     new_ops
